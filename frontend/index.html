@@ -1,13 +1,67 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Mental Health Survey</title>
-  <style>
-    body { font-family: Arial; max-width: 600px; margin: 0 auto; padding: 20px; }
-    .question { display: none; margin-bottom: 20px; }
-    .question.active { display: block; }
-    button { padding: 10px 20px; }
-  </style>
+    <title>Mental Health Prediction Survey</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            max-width: 600px;
+            background: #fff;
+            margin: 30px auto;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        .form-step {
+            display: none;
+        }
+        .form-step.active {
+            display: block;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
+        select, input[type="number"] {
+            width: 100%;
+            padding: 8px;
+        }
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+        #result {
+            text-align: center;
+            font-size: 1.2em;
+            color: green;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
 
@@ -302,73 +356,102 @@
   <div id="result" style="margin-top: 30px; font-weight: bold;"></div>
 
   <script>
-    let currentQuestion = 0;
-    const questions = document.querySelectorAll(".question");
-    const nextBtn = document.getElementById("nextBtn");
-    const prevBtn = document.getElementById("prevBtn");
-    const submitBtn = document.getElementById("submitBtn");
+  // Navigation logic
+  let currentQuestion = 0;
+  const questions = document.querySelectorAll(".question");
+  const nextBtn = document.getElementById("nextBtn");
+  const prevBtn = document.getElementById("prevBtn");
+  const submitBtn = document.getElementById("submitBtn");
 
-    function showQuestion(index) {
-      questions.forEach((q, i) => {
-        q.classList.toggle("active", i === index);
-      });
+  function showQuestion(index) {
+    questions.forEach((q, i) => q.classList.toggle("active", i === index));
+    prevBtn.style.display = index === 0 ? "none" : "inline-block";
+    nextBtn.style.display = index === questions.length - 1 ? "none" : "inline-block";
+    submitBtn.style.display = index === questions.length - 1 ? "inline-block" : "none";
+  }
 
-      prevBtn.style.display = index === 0 ? "none" : "inline-block";
-      nextBtn.style.display = index === questions.length - 1 ? "none" : "inline-block";
-      submitBtn.style.display = index === questions.length - 1 ? "inline-block" : "none";
-    }
-
-    function nextQuestion() {
-      if (currentQuestion < questions.length - 1) {
-        currentQuestion++;
-        showQuestion(currentQuestion);
+  function nextQuestion() {
+    const currentInputs = questions[currentQuestion].querySelectorAll("input, select, textarea");
+    for (const el of currentInputs) {
+      if (el.hasAttribute("required") && !el.value) {
+        alert("Please answer the question before continuing.");
+        return;
       }
     }
-
-    function prevQuestion() {
-      if (currentQuestion > 0) {
-        currentQuestion--;
-        showQuestion(currentQuestion);
-      }
+    if (currentQuestion < questions.length - 1) {
+      currentQuestion++;
+      showQuestion(currentQuestion);
     }
+  }
 
-    document.getElementById("predictionForm").addEventListener("submit", async function (e) {
-      e.preventDefault();
+  function prevQuestion() {
+    if (currentQuestion > 0) {
+      currentQuestion--;
+      showQuestion(currentQuestion);
+    }
+  }
 
-      const formData = new FormData(e.target);
-      const jsonData = {};
+  // Handle form submission
+  document.getElementById("predictionForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
 
-      for (const [key, value] of formData.entries()) {
+    const formData = new FormData(e.target);
+    const jsonData = {};
+    for (const [key, value] of formData.entries()) {
+      if (key === "country") {
+        jsonData["Country"] = value; // FIXED key name for backend
+      } else {
         jsonData[key] = isNaN(value) ? value : Number(value);
       }
+    }
 
-      try {
-        const response = await fetch("http://localhost:8000/predict", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(jsonData)
-        });
+    console.log("Payload to send:", jsonData);
 
-        const data = await response.json();
-
-        if (response.ok) {
-          if (data.prediction) {
-            document.getElementById("result").innerText = data.prediction;
-          } else {
-            document.getElementById("result").innerText = "Unexpected response format.";
-          }
-        } else {
-          document.getElementById("result").innerText = "Error: " + (data.error || "Prediction failed.");
-        }
-      } catch (error) {
-        document.getElementById("result").innerText = "Server error: " + error.message;
+    const expectedKeys = [
+      "age","gender","Country","self_employed","family_history","work_interfere","no_employees",
+      "remote_work","tech_company","benefits","care_options","wellness_program","seek_help",
+      "anonymity","leave","mental_health_consequence","phys_health_consequence","coworkers",
+      "supervisor","mental_health_interview","phys_health_interview","mental_vs_physical","obs_consequence"
+    ];
+    for (const k of expectedKeys) {
+      if (!(k in jsonData)) {
+        document.getElementById("result").innerText = `Missing field: ${k}`;
+        return;
       }
-    });
+    }
 
-    showQuestion(currentQuestion);
-  </script>
+    try {
+      const response = await fetch("http://127.0.0.1:8000/predict", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(jsonData)
+      });
 
-</body>
-</html>
+      const data = await response.json();
+      console.log("Server response:", data);
+
+      if (response.ok && data.prediction !== undefined) {
+        let message = "";
+        if (data.prediction === 0) {
+          message = "✅ You are mentally fit";
+        } else if (data.prediction === 1) {
+          message = "⚠️ You need a mental health checkup";
+        } else {
+          message = `Unexpected prediction value: ${data.prediction}`;
+        }
+        document.getElementById("result").innerText = message;
+      } else if (data.error) {
+        document.getElementById("result").innerText = "Error: " + data.error;
+      } else {
+        document.getElementById("result").innerText = "Unexpected response format.";
+        console.log("Raw response:", data);
+      }
+    } catch (err) {
+      console.error("Fetch error:", err);
+      document.getElementById("result").innerText = "Server error: " + err.message;
+    }
+  });
+
+  // Initialize UI
+  showQuestion(currentQuestion);
+</script>
