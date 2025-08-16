@@ -23,22 +23,51 @@
         h1, h2 {
             text-align: center;
         }
-        .form-step {
+        .question {
             display: none;
+            margin-bottom: 20px;
         }
-        .form-step.active {
+        .question.active {
             display: block;
+        }
+        .question h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .progress-fill {
+            height: 100%;
+            background-color: #007bff;
+            border-radius: 5px;
+            transition: width 0.3s ease;
+        }
+        .progress-text {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #666;
         }
         button {
             background: #007bff;
             color: white;
-            padding: 10px 15px;
+            padding: 12px 20px;
             border: none;
             cursor: pointer;
             border-radius: 4px;
+            margin: 5px;
+            font-size: 16px;
         }
         button:hover {
             background: #0056b3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
         }
         .form-group {
             margin-bottom: 15px;
@@ -46,37 +75,72 @@
         label {
             display: block;
             margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
         }
         select, input[type="number"] {
             width: 100%;
-            padding: 8px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
         }
         .navigation-buttons {
             display: flex;
             justify-content: space-between;
+            margin-top: 30px;
         }
         #result {
             text-align: center;
             font-size: 1.2em;
-            color: green;
             margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .result-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .result-warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .result-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .loading {
+            text-align: center;
+            color: #666;
         }
     </style>
 </head>
 <body>
 
+<div class="container">
   <h2>Mental Health Prediction Survey</h2>
+  
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+  <div class="progress-text" id="progressText">Question 1 of 22</div>
 
   <form id="predictionForm">
     <!-- Age -->
     <div class="question active">
-      <label>Age: <input type="number" name="age" min="10" max="100" required></label>
+      <h3>Personal Information</h3>
+      <label>What is your age? <input type="number" name="age" min="10" max="100" required></label>
     </div>
 
     <!-- Gender -->
     <div class="question">
-      <label>Gender:
+      <h3>Gender Identity</h3>
+      <label>What is your gender?
         <select name="gender" required>
+          <option value="">Please select...</option>
           <option value="0">Male</option>
           <option value="1">Female</option>
           <option value="2">Transgender</option>
@@ -87,8 +151,10 @@
 
     <!-- Country -->
     <div class="question">
-      <label>Country: 
-        <select name="country" >
+      <h3>Location</h3>
+      <label>Which country do you live in? 
+        <select name="country" required>
+          <option value="">Please select...</option>
           <option>United States</option>
           <option>Canada</option>
           <option>United Kingdom</option>
@@ -143,8 +209,10 @@
 
     <!-- Self-employed -->
     <div class="question">
+      <h3>Employment Status</h3>
       <label>Are you self-employed?
         <select name="self_employed" required>
+          <option value="">Please select...</option>
           <option value="0">Yes</option>
           <option value="1">No</option>
         </select>
@@ -153,8 +221,10 @@
 
     <!-- Family history -->
     <div class="question">
+      <h3>Family History</h3>
       <label>Do you have a family history of mental illness?
         <select name="family_history" required>
+          <option value="">Please select...</option>
           <option value="0">Yes</option>
           <option value="1">No</option>
         </select>
@@ -163,8 +233,10 @@
 
     <!-- Interferes with work -->
     <div class="question">
+      <h3>Work Impact</h3>
       <label>If you have a mental health condition, does it interfere with your work?
         <select name="work_interfere" required>
+          <option value="">Please select...</option>
           <option value="0">Never</option>
           <option value="1">Sometimes</option>
           <option value="2">Often</option>
@@ -174,8 +246,10 @@
 
     <!-- Number of employees -->
     <div class="question">
+      <h3>Company Size</h3>
       <label>How many employees does your company have?
         <select name="no_employees" required>
+          <option value="">Please select...</option>
           <option value="0">1-5</option>
           <option value="1">6-25</option>
           <option value="2">26-100</option>
@@ -187,8 +261,10 @@
     </div>
 
     <div class="question">
+      <h3>Remote Work</h3>
       <label>Do you work remotely (outside of an office) at least 50% of the time?
         <select name="remote_work" required>
+          <option value="">Please select...</option>
           <option value="0">Yes</option>
           <option value="1">No</option>
         </select>
@@ -196,8 +272,10 @@
     </div>
 
     <div class="question">
+      <h3>Company Type</h3>
       <label>Is your employer primarily a tech company/organization?
         <select name="tech_company" required>
+          <option value="">Please select...</option>
           <option value="0">Yes</option>
           <option value="1">No</option>
         </select>
@@ -205,8 +283,10 @@
     </div>
 
     <div class="question">
-      <label> Does your employer provide mental health benefits?
+      <h3>Mental Health Benefits</h3>
+      <label>Does your employer provide mental health benefits?
         <select name="benefits" required>
+          <option value="">Please select...</option>
           <option value="0">Yes</option>
           <option value="1">No</option>
           <option value="2">Don't know</option>
@@ -215,8 +295,10 @@
     </div>
 
     <div class="question">
-      <label> Do you know the options for mental health care your employer provides?
+      <h3>Care Options Knowledge</h3>
+      <label>Do you know the options for mental health care your employer provides?
         <select name="care_options" required>
+          <option value="">Please select...</option>
           <option value="0">Yes</option>
           <option value="1">No</option>
           <option value="2">Not sure</option>
@@ -225,8 +307,10 @@
     </div>
 
     <div class="question">
-      <label> Has your employer ever discussed mental health as part of an employee wellness program?
+      <h3>Wellness Programs</h3>
+      <label>Has your employer ever discussed mental health as part of an employee wellness program?
         <select name="wellness_program" required>
+          <option value="">Please select...</option>
           <option value="0">Yes</option>
           <option value="1">No</option>
           <option value="2">Don't know</option>
@@ -235,8 +319,10 @@
     </div>
 
     <div class="question">
-      <label> Does your employer provide resources to learn more about mental health issues and how to seek help?
+      <h3>Mental Health Resources</h3>
+      <label>Does your employer provide resources to learn more about mental health issues and how to seek help?
         <select name="seek_help" required>
+          <option value="">Please select...</option>
           <option value="0">Yes</option>
           <option value="1">No</option>
           <option value="2">Don't know</option>
@@ -244,10 +330,11 @@
       </label>
     </div>
 
-
     <div class="question">
-      <label> Is your anonymity protected if you choose to take advantage of mental health or substance abuse treatment resources?
+      <h3>Anonymity Protection</h3>
+      <label>Is your anonymity protected if you choose to take advantage of mental health or substance abuse treatment resources?
         <select name="anonymity" required>
+          <option value="">Please select...</option>
           <option value="0">Yes</option>
           <option value="1">No</option>
           <option value="2">Don't know</option>
@@ -256,8 +343,10 @@
     </div>
 
     <div class="question">
+      <h3>Medical Leave</h3>
       <label>How easy is it for you to take medical leave for a mental health condition?
         <select name="leave" required>
+          <option value="">Please select...</option>
           <option value="0">Very easy</option>
           <option value="1">Somewhat easy</option>
           <option value="2">Somewhat difficult</option>
@@ -268,8 +357,10 @@
     </div>
 
     <div class="question">
+      <h3>Mental Health Discussion Consequences</h3>
       <label>Do you think that discussing a mental health issue with your employer would have negative consequences?
         <select name="mental_health_consequence" required>
+          <option value="">Please select...</option>
           <option value="0">Yes</option>
           <option value="1">No</option>
           <option value="2">Maybe</option>
@@ -278,8 +369,10 @@
     </div>
 
     <div class="question">
+      <h3>Physical Health Discussion Consequences</h3>
       <label>Do you think that discussing a physical health issue with your employer would have negative consequences?
         <select name="phys_health_consequence" required>
+          <option value="">Please select...</option>
           <option value="0">Yes</option>
           <option value="1">No</option>
           <option value="2">Maybe</option>
@@ -288,8 +381,10 @@
     </div>
 
     <div class="question">
+      <h3>Discussing with Coworkers</h3>
       <label>Would you be willing to discuss a mental health issue with your coworkers?
         <select name="coworkers" required>
+          <option value="">Please select...</option>
           <option value="0">Yes</option>
           <option value="1">No</option>
           <option value="2">Some of them</option>
@@ -298,8 +393,10 @@
     </div>
 
     <div class="question">
+      <h3>Discussing with Supervisor</h3>
       <label>Would you be willing to discuss a mental health issue with your direct supervisor(s)?
         <select name="supervisor" required>
+          <option value="">Please select...</option>
           <option value="0">Yes</option>
           <option value="1">No</option>
           <option value="2">Some of them</option>
@@ -308,8 +405,10 @@
     </div>
 
     <div class="question">
+      <h3>Mental Health in Interviews</h3>
       <label>Would you bring up a mental health issue with a potential employer in an interview?
         <select name="mental_health_interview" required>
+          <option value="">Please select...</option>
           <option value="0">Yes</option>
           <option value="1">No</option>
           <option value="2">Maybe</option>
@@ -318,8 +417,10 @@
     </div>
 
     <div class="question">
+      <h3>Physical Health in Interviews</h3>
       <label>Would you bring up a physical health issue with a potential employer in an interview?
         <select name="phys_health_interview" required>
+          <option value="">Please select...</option>
           <option value="0">Yes</option>
           <option value="1">No</option>
           <option value="2">Maybe</option>
@@ -328,130 +429,167 @@
     </div>
 
     <div class="question">
+      <h3>Mental vs Physical Health Priority</h3>
       <label>Do you feel that your employer takes mental health as seriously as physical health?
         <select name="mental_vs_physical" required>
+          <option value="">Please select...</option>
           <option value="0">Yes</option>
           <option value="1">No</option>
-          <option value="2">Don't know</option> <!-- fixed value -->
+          <option value="2">Don't know</option>
         </select>
       </label>
     </div>
 
     <div class="question">
+      <h3>Observed Consequences</h3>
       <label>Have you heard of or observed negative consequences for coworkers with mental health conditions in your workplace?
         <select name="obs_consequence" required>
+          <option value="">Please select...</option>
           <option value="0">Yes</option>
           <option value="1">No</option>
         </select>
       </label>
     </div>
 
-    <div style="margin-top: 20px;">
-      <button type="button" id="prevBtn" onclick="prevQuestion()">Previous</button>
-      <button type="button" id="nextBtn" onclick="nextQuestion()">Next</button>
-      <button type="submit" id="submitBtn" style="display:none;">Submit</button>
+    <div class="navigation-buttons">
+      <button type="button" id="prevBtn" onclick="prevQuestion()">← Previous</button>
+      <button type="button" id="nextBtn" onclick="nextQuestion()">Next →</button>
+      <button type="submit" id="submitBtn" style="display:none;">Submit Survey</button>
     </div>
   </form>
 
-  <div id="result" style="margin-top: 30px; font-weight: bold;"></div>
+  <div id="result"></div>
+</div>
 
-  <script>
-  // Navigation logic
-  let currentQuestion = 0;
-  const questions = document.querySelectorAll(".question");
-  const nextBtn = document.getElementById("nextBtn");
-  const prevBtn = document.getElementById("prevBtn");
-  const submitBtn = document.getElementById("submitBtn");
+<script>
+// Navigation logic
+let currentQuestion = 0;
+const questions = document.querySelectorAll(".question");
+const nextBtn = document.getElementById("nextBtn");
+const prevBtn = document.getElementById("prevBtn");
+const submitBtn = document.getElementById("submitBtn");
+const progressFill = document.getElementById("progressFill");
+const progressText = document.getElementById("progressText");
 
-  function showQuestion(index) {
+function updateProgress() {
+    const progress = ((currentQuestion + 1) / questions.length) * 100;
+    progressFill.style.width = progress + "%";
+    progressText.textContent = `Question ${currentQuestion + 1} of ${questions.length}`;
+}
+
+function showQuestion(index) {
     questions.forEach((q, i) => q.classList.toggle("active", i === index));
     prevBtn.style.display = index === 0 ? "none" : "inline-block";
     nextBtn.style.display = index === questions.length - 1 ? "none" : "inline-block";
     submitBtn.style.display = index === questions.length - 1 ? "inline-block" : "none";
-  }
+    updateProgress();
+}
 
-  function nextQuestion() {
+function validateCurrentQuestion() {
     const currentInputs = questions[currentQuestion].querySelectorAll("input, select, textarea");
     for (const el of currentInputs) {
-      if (el.hasAttribute("required") && !el.value) {
-        alert("Please answer the question before continuing.");
-        return;
-      }
+        if (el.hasAttribute("required") && !el.value) {
+            alert("Please answer the question before continuing.");
+            return false;
+        }
     }
-    if (currentQuestion < questions.length - 1) {
-      currentQuestion++;
-      showQuestion(currentQuestion);
-    }
-  }
+    return true;
+}
 
-  function prevQuestion() {
+function nextQuestion() {
+    if (validateCurrentQuestion()) {
+        if (currentQuestion < questions.length - 1) {
+            currentQuestion++;
+            showQuestion(currentQuestion);
+        }
+    }
+}
+
+function prevQuestion() {
     if (currentQuestion > 0) {
-      currentQuestion--;
-      showQuestion(currentQuestion);
+        currentQuestion--;
+        showQuestion(currentQuestion);
     }
-  }
+}
 
-  // Handle form submission
-  document.getElementById("predictionForm").addEventListener("submit", async function (e) {
+// Handle form submission
+document.getElementById("predictionForm").addEventListener("submit", async function (e) {
     e.preventDefault();
+
+    if (!validateCurrentQuestion()) {
+        return;
+    }
+
+    const resultDiv = document.getElementById("result");
+    resultDiv.innerHTML = '<div class="loading">Processing your responses...</div>';
+    resultDiv.className = '';
 
     const formData = new FormData(e.target);
     const jsonData = {};
+    
     for (const [key, value] of formData.entries()) {
-      if (key === "country") {
-        jsonData["Country"] = value; // FIXED key name for backend
-      } else {
-        jsonData[key] = isNaN(value) ? value : Number(value);
-      }
+        if (key === "country") {
+            jsonData["country"] = value; // Fixed: use lowercase 'country'
+        } else {
+            jsonData[key] = isNaN(value) ? value : Number(value);
+        }
     }
 
     console.log("Payload to send:", jsonData);
 
     const expectedKeys = [
-      "age","gender","Country","self_employed","family_history","work_interfere","no_employees",
-      "remote_work","tech_company","benefits","care_options","wellness_program","seek_help",
-      "anonymity","leave","mental_health_consequence","phys_health_consequence","coworkers",
-      "supervisor","mental_health_interview","phys_health_interview","mental_vs_physical","obs_consequence"
+        "age","gender","country","self_employed","family_history","work_interfere","no_employees",
+        "remote_work","tech_company","benefits","care_options","wellness_program","seek_help",
+        "anonymity","leave","mental_health_consequence","phys_health_consequence","coworkers",
+        "supervisor","mental_health_interview","phys_health_interview","mental_vs_physical","obs_consequence"
     ];
+    
     for (const k of expectedKeys) {
-      if (!(k in jsonData)) {
-        document.getElementById("result").innerText = `Missing field: ${k}`;
-        return;
-      }
+        if (!(k in jsonData)) {
+            resultDiv.innerHTML = `<div class="result-error">Missing field: ${k}</div>`;
+            return;
+        }
     }
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/predict", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(jsonData)
-      });
+        const response = await fetch("http://127.0.0.1:8000/predict", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(jsonData)
+        });
 
-      const data = await response.json();
-      console.log("Server response:", data);
+        const data = await response.json();
+        console.log("Server response:", data);
 
-      if (response.ok && data.prediction !== undefined) {
-        let message = "";
-        if (data.prediction === 0) {
-          message = "✅ You are mentally fit";
-        } else if (data.prediction === 1) {
-          message = "⚠️ You need a mental health checkup";
+        if (response.ok && data.prediction !== undefined) {
+            // Handle the string message from backend
+            let message = data.prediction;
+            let className = 'result-success';
+            
+            if (message.includes("mentally fit")) {
+                className = 'result-success';
+            } else if (message.includes("check-up") || message.includes("checkup")) {
+                className = 'result-warning';
+            } else {
+                className = 'result-error';
+            }
+            
+            resultDiv.innerHTML = `<div class="${className}">${message}</div>`;
+        } else if (data.error) {
+            resultDiv.innerHTML = `<div class="result-error">Error: ${data.error}</div>`;
         } else {
-          message = `Unexpected prediction value: ${data.prediction}`;
+            resultDiv.innerHTML = `<div class="result-error">Unexpected response format.</div>`;
+            console.log("Raw response:", data);
         }
-        document.getElementById("result").innerText = message;
-      } else if (data.error) {
-        document.getElementById("result").innerText = "Error: " + data.error;
-      } else {
-        document.getElementById("result").innerText = "Unexpected response format.";
-        console.log("Raw response:", data);
-      }
     } catch (err) {
-      console.error("Fetch error:", err);
-      document.getElementById("result").innerText = "Server error: " + err.message;
+        console.error("Fetch error:", err);
+        resultDiv.innerHTML = `<div class="result-error">Server error: ${err.message}</div>`;
     }
-  });
+});
 
-  // Initialize UI
-  showQuestion(currentQuestion);
+// Initialize UI
+showQuestion(currentQuestion);
 </script>
+
+</body>
+</html>

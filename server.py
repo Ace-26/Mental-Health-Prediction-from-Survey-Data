@@ -15,7 +15,10 @@ app.add_middleware(
         "http://127.0.0.1:8080",
         "http://localhost:8080",
         "http://127.0.0.1:5500",
-        "http://localhost:5500"
+        "http://localhost:5500",
+        "http://127.0.0.1:20175",
+        "http://localhost:20175",
+        "*"  # Allow all origins for development
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -57,9 +60,12 @@ def predict(data: RequestData):
     try:
         # 1) Encode country. Be explicit and return a helpful error if unknown.
         try:
-            enc = country_encoder.transform([data.country])
+            import pandas as pd
+            # Create a DataFrame with the country column as expected by TargetEncoder
+            country_df = pd.DataFrame({'Country': [data.country]})
+            enc = country_encoder.transform(country_df)
             # enc may be array-like (e.g., array([12])) or nested -> extract numeric
-            country_encoded = enc[0]
+            country_encoded = enc.iloc[0, 0] if hasattr(enc, 'iloc') else enc[0]
             if isinstance(country_encoded, (list, tuple, np.ndarray)):
                 country_encoded = country_encoded[0]
             if hasattr(country_encoded, "item"):
